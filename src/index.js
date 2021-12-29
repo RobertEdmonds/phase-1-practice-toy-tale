@@ -13,13 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-document.querySelector('.submit').addEventListener('submit', makeToy)
+document.querySelector('.add-toy-form').addEventListener('submit', makeToy)
 function makeToy(e){
   e.preventDefault()
   let toy = {
-    name: e.target.toy.name.value,
-    image: e.target.toy.image.value,
-    likes: e.target.toy.likes.value
+    name: e.target[0].value,
+    image: e.target[1].value,
+    likes: 0
   }
   console.log(toy)
   renderToy(toy)
@@ -39,6 +39,11 @@ function renderToy(toy){
   p.textContent = toy.likes
   btn.id = toy.id
   btn.textContent = 'Likes'
+  btn.addEventListener('click',()=>{
+    toy.likes += 1
+    p.textContent = toy.likes
+    updateLikes(toy)
+  })
   div.append(h2, img, p, btn)
   document.querySelector('#toy-collection').appendChild(div)
 
@@ -53,19 +58,24 @@ function fetchToy(){
 }
 fetchToy()
 
-function postToy(){
+function postToy(toy){
   fetch('http://localhost:3000/toys',{
     method: 'POST',
     headers: {
       'Content-Type': 'applications/json',
       Accept: 'application/json'
     },
-    body: JSON.stringify({
-      "name": "Jessie",
-      "image": "https://vignette.wikia.nocookie.net/p__/images/8/88/Jessie_Toy_Story_3.png/revision/latest?cb=20161023024601&path-prefix=protagonist",
-      "likes": 0
-    })
+    body: JSON.stringify(toy)
 
   } )
 }
-postToy()
+function updateLikes(like){
+  fetch(`http://localhost:3000/toys/${like.id}`,{
+    method: 'PATCH',
+    headers:{
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    body: JSON.stringify(like)
+  })
+}
